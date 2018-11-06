@@ -22,37 +22,13 @@ end
 
 ```elixir
 def application do
-  [applications: [:jsonrpc2, :poison]]
+  [applications: [:jsonrpc2]]
 end
 ```
 
 ## Serialization
 
-Uses `poison` by default, but you can use any serializer (it doesn't even have to be JSON, technically).
-
-A serializer for `jiffy` is included as `JSONRPC2.Serializers.Jiffy`.
-
-To use a different serializer you must configure it in your Mix config. For the `jiffy` serializer:
-
-```elixir
-config :jsonrpc2, :serializer, JSONRPC2.Serializers.Jiffy
-```
-
-If you are going to use the `jiffy` serializer, you must add it to your deps and applications instead of `poison`:
-
-```elixir
-def deps do
-  [..., {:jiffy, "~> 0.14"}]
-end
-```
-
-```elixir
-def application do
-  [applications: [..., :jiffy]]
-end
-```
-
-If you use your own serializer, you do not (necessarily) need to add `poison` or `jiffy` to your deps/apps.
+Uses `Jason` by default.
 
 ## TCP/TLS server
 

@@ -77,15 +77,7 @@ defmodule JSONRPC2.Servers.HTTP do
       |> List.keyfind(:cowboy, 0)
 
     if cowboy_spec do
-      cowboy_spec
-      |> elem(2)
-      |> List.to_string()
-      |> Version.parse!()
-      |> Version.match?("~> 2.0")
-      |> case do
-        true -> Plug.Adapters.Cowboy2
-        false -> Plug.Adapters.Cowboy
-      end
+      Plug.Cowboy
     else
       :ok = Application.load(:cowboy)
 

@@ -1,9 +1,9 @@
-defmodule JSONRPC2.Serializers.Jiffy do
+defmodule JSONRPC2.Serializers.Jason do
   @moduledoc false
 
   def decode(json) do
     try do
-      {:ok, :jiffy.decode(json, [:return_maps, :use_nil])}
+      {:ok, Jason.decode!(json)}
     catch
       kind, payload -> {:error, {kind, payload}}
     end
@@ -11,7 +11,7 @@ defmodule JSONRPC2.Serializers.Jiffy do
 
   def encode(json) do
     try do
-      {:ok, :jiffy.encode(json, [:use_nil])}
+      {:ok, Jason.encode!(json)}
     catch
       kind, payload -> {:error, {kind, payload}}
     end

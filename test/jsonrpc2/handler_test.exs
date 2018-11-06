@@ -223,7 +223,7 @@ defmodule JSONRPC2.HandlerTest do
 
   defp assert_rpc_reply(handler, call, expected_reply) do
     assert {:reply, reply} = handler.handle(call)
-    assert JSONRPC2.Serializers.Jiffy.decode(reply) == JSONRPC2.Serializers.Jiffy.decode(expected_reply)
+    assert JSONRPC2.Serializers.Jason.decode(reply) == JSONRPC2.Serializers.Jason.decode(expected_reply)
   end
 
   defp assert_rpc_noreply(handler, call) do
