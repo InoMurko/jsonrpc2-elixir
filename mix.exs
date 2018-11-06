@@ -38,10 +38,10 @@ defmodule JSONRPC2.Mixfile do
       {:dialyxir, "~> 1.0.0-rc.4", only: [:dev, :test], runtime: false},
       {:jason, "~> 1.1"},
       {:ranch, "~> 1.6"},
-      {:shackle, git: "https://github.com/lpgauth/shackle.git", tag: "0.6.2"},
       {:plug, "~> 1.7"},
       {:plug_cowboy, "~> 2.0"},
-      {:hackney, "~> 1.6"},
+      {:hackney, "~> 1.6", only: [:test]},
+      {:shackle, git: "https://github.com/lpgauth/shackle.git", tag: "0.6.2", only: [:test]},
       {:cowboy, "~> 2.5"},
       {:ex_doc, "~> 0.19", only: :dev}
     ]
