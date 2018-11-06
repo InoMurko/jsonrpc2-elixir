@@ -7,9 +7,8 @@ defmodule JSONRPC2.Clients.TCP.Protocol do
 
   require Logger
 
-  def init do
-    serializer = Application.get_env(:jsonrpc2, :serializer)
-    {:ok, %{request_counter: 0, serializer: serializer}}
+  def init(_) do
+    {:ok, %{request_counter: 0}}
   end
 
   def setup(_socket, state) do
@@ -28,20 +27,20 @@ defmodule JSONRPC2.Clients.TCP.Protocol do
 
     {:ok, data} =
       {method, params, external_request_id}
-      |> JSONRPC2.Request.serialized_request(state.serializer)
+      |> JSONRPC2.Request.serialized_request(Jason)
 
     new_state = %{state | request_counter: external_request_id_int + 1}
     {:ok, external_request_id, [data, "\r\n"], new_state}
   end
 
   def handle_request({:notify, method, params}, state) do
-    {:ok, data} = JSONRPC2.Request.serialized_request({method, params}, state.serializer)
+    {:ok, data} = JSONRPC2.Request.serialized_request({method, params}, Jason)
 
     {:ok, nil, [data, "\r\n"], state}
   end
 
   def handle_data(data, state) do
-    case JSONRPC2.Response.deserialize_response(data, state.serializer) do
+    case JSONRPC2.Response.deserialize_response(data, Jason) do
       {:ok, {nil, result}} ->
         _ =
           Logger.error([

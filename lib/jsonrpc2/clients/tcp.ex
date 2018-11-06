@@ -66,7 +66,7 @@ defmodule JSONRPC2.Clients.TCP do
   which will set `string_id` to the given boolean.
   """
   @spec call(atom, JSONRPC2.method(), JSONRPC2.params(), boolean | call_options) ::
-          {:ok, any} | {:error, any}
+          {:ok, {atom(), reference()}} | {:error, :backlog_full | :pool_not_started | :shackle_not_started}
   def call(name, method, params, options \\ [])
 
   def call(name, method, params, string_id) when is_boolean(string_id) do
@@ -98,7 +98,7 @@ defmodule JSONRPC2.Clients.TCP do
   which will set `string_id` to the given boolean.
   """
   @spec cast(atom, JSONRPC2.method(), JSONRPC2.params(), boolean | cast_options) ::
-          {:ok, request_id} | {:error, :backlog_full}
+          {:ok, {atom(), reference()}} | {:error, :backlog_full | :pool_not_started | :shackle_not_started}
   def cast(name, method, params, options \\ [])
 
   def cast(name, method, params, string_id) when is_boolean(string_id) do
@@ -116,7 +116,7 @@ defmodule JSONRPC2.Clients.TCP do
   @doc """
   Receive the response for a previous `cast/3` which returned a `request_id`.
   """
-  @spec receive_response(request_id) :: {:ok, any} | {:error, any}
+  @spec receive_response(request_id) :: {:error, any}
   def receive_response(request_id) do
     :shackle.receive_response(request_id)
   end
@@ -126,7 +126,8 @@ defmodule JSONRPC2.Clients.TCP do
 
   This function returns a `request_id`, but it should not be used with `receive_response/1`.
   """
-  @spec notify(atom, JSONRPC2.method(), JSONRPC2.params()) :: {:ok, request_id} | {:error, :backlog_full}
+  @spec notify(atom, JSONRPC2.method(), JSONRPC2.params()) ::
+          {:ok, {atom(), reference()}} | {:error, :backlog_full | :pool_not_started | :shackle_not_started}
   def notify(name, method, params) do
     # Spawn a dead process so responses go to /dev/null
     pid = spawn(fn -> :ok end)
