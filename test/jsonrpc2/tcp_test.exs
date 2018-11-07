@@ -4,7 +4,7 @@ defmodule JSONRPC2.TCPTest do
   setup do
     port = :rand.uniform(65535 - 1025) + 1025
 
-    {:ok, pid} = JSONRPC2.Servers.TCP.start_listener(JSONRPC2.SpecHandler, port, name: __MODULE__)
+    {:ok, pid} = JSONRPC2.Servers.TCP.start_listener(JSONRPC2.SpecHandlerTest, port, name: __MODULE__)
 
     :ok = JSONRPC2.Clients.TCP.start("localhost", port, __MODULE__)
 

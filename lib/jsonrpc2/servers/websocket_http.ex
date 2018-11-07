@@ -1,4 +1,4 @@
-defmodule JSONRPC2.Servers.HTTP do
+defmodule JSONRPC2.Servers.WebSocketHTTP do
   @moduledoc """
   An HTTP server which responds to POSTed JSON-RPC 2.0 in the request body.
 
@@ -23,6 +23,36 @@ defmodule JSONRPC2.Servers.HTTP do
   def child_spec(scheme, handler, cowboy_opts \\ []) do
     cowboy_opts = cowboy_opts ++ [ref: ref(scheme, handler)]
     cowboy_adapter().child_spec(scheme, JSONRPC2Plug, handler, cowboy_opts)
+  end
+
+  # @spec http_and_websocket(module, list) :: {:ok, pid} | {:error, term}
+  # def http_and_websocket(handler, cowboy_opts \\ []) do
+  #   cowboy_dispatch =
+  #     dispatch(
+  #       JSONRPC2.Servers.WebSocket,
+  #       {:handler, JSONRPC2.SpecHandler},
+  #       JSONRPC2Plug,
+  #       JSONRPC2Plug.init(handler: JSONRPC2.SpecHandler)
+  #     )
+
+  #   cowboy_opts = cowboy_opts ++ cowboy_dispatch
+  #   IO.inspect(cowboy_opts)
+  #   cowboy_adapter().http(JSONRPC2Plug, handler, cowboy_opts)
+  # end
+
+  @spec websocket(module, list) :: {:ok, pid} | {:error, term}
+  def websocket(handler, cowboy_opts \\ []) do
+    cowboy_dispatch = [
+      dispatch: [
+        {:_,
+         [
+           {"/ws", JSONRPC2.Servers.WebSocket, [{:handler, JSONRPC2.SpecHandler}]}
+         ]}
+      ]
+    ]
+
+    cowboy_opts = cowboy_opts ++ cowboy_dispatch
+    cowboy_adapter().http(JSONRPC2Plug, handler, cowboy_opts)
   end
 
   @doc """
@@ -84,4 +114,16 @@ defmodule JSONRPC2.Servers.HTTP do
       cowboy_adapter()
     end
   end
+
+  # defp dispatch(socket_handler, socket_definition, plug, plug_definition) do
+  #   [
+  #     dispatch: [
+  #       {:_,
+  #        [
+  #          {"/ws", socket_handler, [socket_definition]},
+  #          {:_, [], Plug.Cowboy.Handler, {plug, plug_definition}}
+  #        ]}
+  #     ]
+  #   ]
+  # end
 end

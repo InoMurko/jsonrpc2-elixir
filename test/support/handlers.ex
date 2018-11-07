@@ -1,4 +1,4 @@
-defmodule JSONRPC2.SpecHandler do
+defmodule JSONRPC2.SpecHandlerTest do
   use JSONRPC2.Server.Handler
 
   def handle_request("subtract", [x, y]) do
@@ -22,7 +22,7 @@ defmodule JSONRPC2.SpecHandler do
   end
 end
 
-defmodule JSONRPC2.ErrorHandler do
+defmodule JSONRPC2.ErrorHandlerTest do
   use JSONRPC2.Server.Handler
 
   def handle_request("exit", []) do
@@ -58,7 +58,7 @@ defmodule JSONRPC2.ErrorHandler do
   end
 end
 
-defmodule JSONRPC2.BuggyHandler do
+defmodule JSONRPC2.BuggyHandlerTest do
   use JSONRPC2.Server.Handler
 
   @dialyzer [:no_return, :no_opaque]

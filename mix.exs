@@ -35,14 +35,16 @@ defmodule JSONRPC2.Mixfile do
 
   defp deps do
     [
-      {:dialyxir, "~> 1.0.0-rc.4", only: [:dev, :test], runtime: false},
+      {:cowboy, "~> 2.5"},
       {:jason, "~> 1.1"},
       {:ranch, "~> 1.6"},
       {:plug, "~> 1.7"},
       {:plug_cowboy, "~> 2.0"},
+      # testing and other stuff
+      {:dialyxir, "~> 1.0.0-rc.4", only: [:dev, :test], runtime: false},
       {:hackney, "~> 1.6", only: [:test]},
+      {:websockex, "~> 0.4.0", only: [:test]},
       {:shackle, git: "https://github.com/lpgauth/shackle.git", tag: "0.6.2", only: [:test]},
-      {:cowboy, "~> 2.5"},
       {:ex_doc, "~> 0.19", only: :dev}
     ]
   end

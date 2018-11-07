@@ -101,7 +101,7 @@ defmodule JSONRPC2 do
       end
 
       # Start the server (this will usually go in your OTP application's start/2)
-      JSONRPC2.Servers.HTTP.http(Handler)
+      JSONRPC2.Servers.WebSocketHTTP.http(Handler)
 
       # Define the client
       defmodule Client do

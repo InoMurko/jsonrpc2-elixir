@@ -143,7 +143,7 @@ defmodule JSONRPC2.HandlerTest do
       capture =
         capture_log(fn ->
           assert_rpc_reply(
-            JSONRPC2.ErrorHandler,
+            JSONRPC2.ErrorHandlerTest,
             ~s([
                 {"jsonrpc": "2.0", "method": "exit", "id": "1"},
                 {"jsonrpc": "2.0", "method": "raise", "id": "2"},
@@ -157,45 +157,50 @@ defmodule JSONRPC2.HandlerTest do
           )
         end)
 
-      assert capture =~ "[error] Error in handler JSONRPC2.ErrorHandler for method exit with params: []:"
-      assert capture =~ "[error] Error in handler JSONRPC2.ErrorHandler for method raise with params: []:"
-      assert capture =~ "[error] Error in handler JSONRPC2.ErrorHandler for method throw with params: []:"
+      assert capture =~
+               "[error] Error in handler JSONRPC2.ErrorHandlerTest for method exit with params: []:"
+
+      assert capture =~
+               "[error] Error in handler JSONRPC2.ErrorHandlerTest for method raise with params: []:"
+
+      assert capture =~
+               "[error] Error in handler JSONRPC2.ErrorHandlerTest for method throw with params: []:"
     end
 
     test "rpc call with invalid response" do
       capture =
         capture_log(fn ->
           assert_rpc_reply(
-            JSONRPC2.ErrorHandler,
+            JSONRPC2.ErrorHandlerTest,
             ~s({"jsonrpc": "2.0", "method": "bad_reply", "id": "1"}),
             ~s({"jsonrpc": "2.0", "error": {"code": -32603, "message": "Internal error"}, "id": null})
           )
         end)
 
-      assert capture =~ "[info]  Handler JSONRPC2.ErrorHandler returned invalid reply:"
+      assert capture =~ "[info]  Handler JSONRPC2.ErrorHandlerTest returned invalid reply:"
     end
 
     test "throwable errors" do
       assert_rpc_reply(
-        JSONRPC2.ErrorHandler,
+        JSONRPC2.ErrorHandlerTest,
         ~s({"jsonrpc": "2.0", "method": "method_not_found", "id": "1"}),
         ~s({"jsonrpc": "2.0", "error": {"code": -32601, "message": "Method not found"}, "id": "1"})
       )
 
       assert_rpc_reply(
-        JSONRPC2.ErrorHandler,
+        JSONRPC2.ErrorHandlerTest,
         ~s({"jsonrpc": "2.0", "method": "invalid_params", "params": ["bad"], "id": "1"}),
         ~s({"jsonrpc": "2.0", "error": {"code": -32602, "message": "Invalid params", "data": ["bad"]}, "id": "1"})
       )
 
       assert_rpc_reply(
-        JSONRPC2.ErrorHandler,
+        JSONRPC2.ErrorHandlerTest,
         ~s({"jsonrpc": "2.0", "method": "custom_error", "id": "1"}),
         ~s({"jsonrpc": "2.0", "error": {"code": 404, "message": "Custom not found error"}, "id": "1"})
       )
 
       assert_rpc_reply(
-        JSONRPC2.ErrorHandler,
+        JSONRPC2.ErrorHandlerTest,
         ~s({"jsonrpc": "2.0", "method": "custom_error", "params": ["bad"], "id": "1"}),
         ~s({"jsonrpc": "2.0", "error": {"code": 404, "message": "Custom not found error", "data": ["bad"]}, "id": "1"})
       )
@@ -208,7 +213,7 @@ defmodule JSONRPC2.HandlerTest do
         capture_log(fn ->
           assert_raise(FunctionClauseError, fn ->
             assert_rpc_noreply(
-              JSONRPC2.BuggyHandler,
+              JSONRPC2.BuggyHandlerTest,
               ~s([
                   {"jsonrpc": "2.0", "method": "raise_function_clause_error", "id": "1"}
               ])
@@ -217,7 +222,7 @@ defmodule JSONRPC2.HandlerTest do
         end)
 
       assert capture =~
-               "[error] Error in handler JSONRPC2.BuggyHandler for method raise_function_clause_error with params: []"
+               "[error] Error in handler JSONRPC2.BuggyHandlerTest for method raise_function_clause_error with params: []"
     end
   end
 

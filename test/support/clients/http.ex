@@ -25,7 +25,7 @@ defmodule JSONRPC2.Clients.HTTP do
         http_method \\ :post,
         hackney_opts \\ []
       ) do
-    serializer = Application.get_env(:jsonrpc2, :serializer)
+    serializer = Jason
     {:ok, payload} = JSONRPC2.Request.serialized_request({method, params, 0}, serializer)
     response = :hackney.request(http_method, url, headers, payload, hackney_opts)
 
@@ -57,7 +57,7 @@ defmodule JSONRPC2.Clients.HTTP do
   """
   @spec notify(String.t(), JSONRPC2.method(), JSONRPC2.params(), any, atom, list) :: :ok | {:error, any}
   def notify(url, method, params, headers \\ @default_headers, http_method \\ :post, hackney_opts \\ []) do
-    serializer = Application.get_env(:jsonrpc2, :serializer)
+    serializer = Jason
     {:ok, payload} = JSONRPC2.Request.serialized_request({method, params}, serializer)
 
     case :hackney.request(http_method, url, headers, payload, hackney_opts) do
@@ -78,7 +78,7 @@ defmodule JSONRPC2.Clients.HTTP do
   @spec batch(String.t(), [JSONRPC2.Request.request()], any, atom, list) ::
           [batch_result] | :ok | {:error, any}
   def batch(url, requests, headers \\ @default_headers, http_method \\ :post, hackney_opts \\ []) do
-    serializer = Application.get_env(:jsonrpc2, :serializer)
+    serializer = Jason
 
     {:ok, payload} =
       Enum.map(requests, &JSONRPC2.Request.request/1)

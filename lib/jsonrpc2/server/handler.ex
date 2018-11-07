@@ -53,7 +53,7 @@ defmodule JSONRPC2.Server.Handler do
     quote do
       @spec handle(String.t()) :: {:reply, String.t()} | :noreply
       def handle(json) do
-        serializer = Application.get_env(:jsonrpc2, :serializer)
+        serializer = Jason
 
         unquote(__MODULE__).handle(__MODULE__, serializer, json)
       end
