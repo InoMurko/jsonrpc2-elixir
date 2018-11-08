@@ -2,17 +2,20 @@ defmodule JSONRPC2.HandlerTest do
   use ExUnit.Case, async: true
 
   import ExUnit.CaptureLog
+  alias JSONRPC2.SpecHandlerTest
+  alias JSONRPC2.ErrorHandlerTest
+  alias JSONRPC2.BuggyHandlerTest
 
   describe "examples from JSON-RPC 2.0 spec at http://www.jsonrpc.org/specification#examples" do
     test "rpc call with positional parameters" do
       assert_rpc_reply(
-        JSONRPC2.SpecHandler,
+        SpecHandlerTest,
         ~s({"jsonrpc": "2.0", "method": "subtract", "params": [42, 23], "id": 1}),
         ~s({"jsonrpc": "2.0", "result": 19, "id": 1})
       )
 
       assert_rpc_reply(
-        JSONRPC2.SpecHandler,
+        SpecHandlerTest,
         ~s({"jsonrpc": "2.0", "method": "subtract", "params": [23, 42], "id": 2}),
         ~s({"jsonrpc": "2.0", "result": -19, "id": 2})
       )
@@ -20,13 +23,13 @@ defmodule JSONRPC2.HandlerTest do
 
     test "rpc call with named parameters" do
       assert_rpc_reply(
-        JSONRPC2.SpecHandler,
+        SpecHandlerTest,
         ~s({"jsonrpc": "2.0", "method": "subtract", "params": {"subtrahend": 23, "minuend": 42}, "id": 3}),
         ~s({"jsonrpc": "2.0", "result": 19, "id": 3})
       )
 
       assert_rpc_reply(
-        JSONRPC2.SpecHandler,
+        SpecHandlerTest,
         ~s({"jsonrpc": "2.0", "method": "subtract", "params": {"minuend": 42, "subtrahend": 23}, "id": 4}),
         ~s({"jsonrpc": "2.0", "result": 19, "id": 4})
       )
@@ -34,16 +37,16 @@ defmodule JSONRPC2.HandlerTest do
 
     test "a Notification" do
       assert_rpc_noreply(
-        JSONRPC2.SpecHandler,
+        SpecHandlerTest,
         ~s({"jsonrpc": "2.0", "method": "update", "params": [1,2,3,4,5]})
       )
 
-      assert_rpc_noreply(JSONRPC2.SpecHandler, ~s({"jsonrpc": "2.0", "method": "foobar"}))
+      assert_rpc_noreply(SpecHandlerTest, ~s({"jsonrpc": "2.0", "method": "foobar"}))
     end
 
     test "rpc call of non-existent method" do
       assert_rpc_reply(
-        JSONRPC2.SpecHandler,
+        SpecHandlerTest,
         ~s({"jsonrpc": "2.0", "method": "foobar", "id": "1"}),
         ~s({"jsonrpc": "2.0", "error": {"code": -32601, "message": "Method not found", "data": {"method": "foobar", "params": []}}, "id": "1"})
       )
@@ -51,7 +54,7 @@ defmodule JSONRPC2.HandlerTest do
 
     test "rpc call with invalid JSON" do
       assert_rpc_reply(
-        JSONRPC2.SpecHandler,
+        SpecHandlerTest,
         ~s({"jsonrpc": "2.0", "method": "foobar, "params": "bar", "baz]),
         ~s({"jsonrpc": "2.0", "error": {"code": -32700, "message": "Parse error"}, "id": null})
       )
@@ -59,7 +62,7 @@ defmodule JSONRPC2.HandlerTest do
 
     test "rpc call with invalid Request object" do
       assert_rpc_reply(
-        JSONRPC2.SpecHandler,
+        SpecHandlerTest,
         ~s({"jsonrpc": "2.0", "method": 1, "params": "bar"}),
         ~s({"jsonrpc": "2.0", "error": {"code": -32600, "message": "Invalid Request"}, "id": null})
       )
@@ -67,7 +70,7 @@ defmodule JSONRPC2.HandlerTest do
 
     test "rpc call Batch, invalid JSON" do
       assert_rpc_reply(
-        JSONRPC2.SpecHandler,
+        SpecHandlerTest,
         ~s([
           {"jsonrpc": "2.0", "method": "sum", "params": [1,2,4], "id": "1"},
           {"jsonrpc": "2.0", "method"
@@ -78,7 +81,7 @@ defmodule JSONRPC2.HandlerTest do
 
     test "rpc call with an empty Array" do
       assert_rpc_reply(
-        JSONRPC2.SpecHandler,
+        SpecHandlerTest,
         ~s([]),
         ~s({"jsonrpc": "2.0", "error": {"code": -32600, "message": "Invalid Request"}, "id": null})
       )
@@ -86,7 +89,7 @@ defmodule JSONRPC2.HandlerTest do
 
     test "rpc call with an invalid Batch (but not empty)" do
       assert_rpc_reply(
-        JSONRPC2.SpecHandler,
+        SpecHandlerTest,
         ~s([1]),
         ~s([
           {"jsonrpc": "2.0", "error": {"code": -32600, "message": "Invalid Request"}, "id": null}
@@ -96,7 +99,7 @@ defmodule JSONRPC2.HandlerTest do
 
     test "rpc call with invalid Batch" do
       assert_rpc_reply(
-        JSONRPC2.SpecHandler,
+        SpecHandlerTest,
         ~s([1,2,3]),
         ~s([
           {"jsonrpc": "2.0", "error": {"code": -32600, "message": "Invalid Request"}, "id": null},
@@ -108,7 +111,7 @@ defmodule JSONRPC2.HandlerTest do
 
     test "rpc call Batch" do
       assert_rpc_reply(
-        JSONRPC2.SpecHandler,
+        SpecHandlerTest,
         ~s([
             {"jsonrpc": "2.0", "method": "sum", "params": [1,2,4], "id": "1"},
             {"jsonrpc": "2.0", "method": "notify_hello", "params": [7]},
@@ -129,7 +132,7 @@ defmodule JSONRPC2.HandlerTest do
 
     test "rpc call Batch (all notifications)" do
       assert_rpc_noreply(
-        JSONRPC2.SpecHandler,
+        SpecHandlerTest,
         ~s([
           {"jsonrpc": "2.0", "method": "notify_sum", "params": [1,2,4]},
           {"jsonrpc": "2.0", "method": "notify_hello", "params": [7]}
@@ -171,7 +174,7 @@ defmodule JSONRPC2.HandlerTest do
       capture =
         capture_log(fn ->
           assert_rpc_reply(
-            JSONRPC2.ErrorHandlerTest,
+            ErrorHandlerTest,
             ~s({"jsonrpc": "2.0", "method": "bad_reply", "id": "1"}),
             ~s({"jsonrpc": "2.0", "error": {"code": -32603, "message": "Internal error"}, "id": null})
           )
@@ -182,25 +185,25 @@ defmodule JSONRPC2.HandlerTest do
 
     test "throwable errors" do
       assert_rpc_reply(
-        JSONRPC2.ErrorHandlerTest,
+        ErrorHandlerTest,
         ~s({"jsonrpc": "2.0", "method": "method_not_found", "id": "1"}),
         ~s({"jsonrpc": "2.0", "error": {"code": -32601, "message": "Method not found"}, "id": "1"})
       )
 
       assert_rpc_reply(
-        JSONRPC2.ErrorHandlerTest,
+        ErrorHandlerTest,
         ~s({"jsonrpc": "2.0", "method": "invalid_params", "params": ["bad"], "id": "1"}),
         ~s({"jsonrpc": "2.0", "error": {"code": -32602, "message": "Invalid params", "data": ["bad"]}, "id": "1"})
       )
 
       assert_rpc_reply(
-        JSONRPC2.ErrorHandlerTest,
+        ErrorHandlerTest,
         ~s({"jsonrpc": "2.0", "method": "custom_error", "id": "1"}),
         ~s({"jsonrpc": "2.0", "error": {"code": 404, "message": "Custom not found error"}, "id": "1"})
       )
 
       assert_rpc_reply(
-        JSONRPC2.ErrorHandlerTest,
+        ErrorHandlerTest,
         ~s({"jsonrpc": "2.0", "method": "custom_error", "params": ["bad"], "id": "1"}),
         ~s({"jsonrpc": "2.0", "error": {"code": 404, "message": "Custom not found error", "data": ["bad"]}, "id": "1"})
       )
@@ -213,7 +216,7 @@ defmodule JSONRPC2.HandlerTest do
         capture_log(fn ->
           assert_raise(FunctionClauseError, fn ->
             assert_rpc_noreply(
-              JSONRPC2.BuggyHandlerTest,
+              BuggyHandlerTest,
               ~s([
                   {"jsonrpc": "2.0", "method": "raise_function_clause_error", "id": "1"}
               ])
@@ -228,7 +231,7 @@ defmodule JSONRPC2.HandlerTest do
 
   defp assert_rpc_reply(handler, call, expected_reply) do
     assert {:reply, reply} = handler.handle(call)
-    assert JSONRPC2.Serializers.Jason.decode(reply) == JSONRPC2.Serializers.Jason.decode(expected_reply)
+    assert Jason.decode(reply) == Jason.decode(expected_reply)
   end
 
   defp assert_rpc_noreply(handler, call) do

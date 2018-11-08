@@ -46,7 +46,7 @@ defmodule JSONRPC2.Servers.WebSocketHTTP do
       dispatch: [
         {:_,
          [
-           {"/ws", JSONRPC2.Servers.WebSocket, [{:handler, JSONRPC2.SpecHandler}]}
+           {"/ws", JSONRPC2.Servers.WebSocket, [{:handler, handler}]}
          ]}
       ]
     ]

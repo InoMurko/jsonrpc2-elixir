@@ -1,13 +1,17 @@
 defmodule JSONRPC2.HTTPTest do
   use ExUnit.Case, async: true
+  alias JSONRPC2.Clients.HTTP
+  alias JSONRPC2.Servers.WebSocketHTTP
+  alias JSONRPC2.SpecHandlerTest
+  alias JSONRPC2.SpecHandlerTest.HTTP, as: SpecHandlerTestHTTP
 
   setup do
     port = :rand.uniform(65535 - 1025) + 1025
-    {:ok, pid} = JSONRPC2.Servers.WebSocketHTTP.http(JSONRPC2.SpecHandlerTest, port: port)
+    {:ok, pid} = WebSocketHTTP.http(SpecHandlerTest, port: port)
 
     on_exit(fn ->
       ref = Process.monitor(pid)
-      JSONRPC2.Servers.WebSocketHTTP.shutdown(JSONRPC2.SpecHandlerTest.HTTP)
+      WebSocketHTTP.shutdown(SpecHandlerTestHTTP)
 
       receive do
         {:DOWN, ^ref, :process, ^pid, :shutdown} -> :ok
@@ -18,27 +22,27 @@ defmodule JSONRPC2.HTTPTest do
   end
 
   test "call", %{port: port} do
-    assert JSONRPC2.Clients.HTTP.call("http://localhost:#{port}/", "subtract", [2, 1]) == {:ok, 1}
+    assert HTTP.call("http://localhost:#{port}/", "subtract", [2, 1]) == {:ok, 1}
   end
 
   test "notify", %{port: port} do
-    assert JSONRPC2.Clients.HTTP.notify("http://localhost:#{port}/", "subtract", [2, 1]) == :ok
+    assert HTTP.notify("http://localhost:#{port}/", "subtract", [2, 1]) == :ok
   end
 
   test "batch", %{port: port} do
     batch = [{"subtract", [2, 1]}, {"subtract", [2, 1], 0}, {"subtract", [2, 2], 1}]
     expected = [ok: {0, {:ok, 1}}, ok: {1, {:ok, 0}}]
-    assert JSONRPC2.Clients.HTTP.batch("http://localhost:#{port}/", batch) == expected
+    assert HTTP.batch("http://localhost:#{port}/", batch) == expected
   end
 
   test "call text/plain", %{port: port} do
-    assert JSONRPC2.Clients.HTTP.call("http://localhost:#{port}/", "subtract", [2, 1], [
+    assert HTTP.call("http://localhost:#{port}/", "subtract", [2, 1], [
              {"content-type", "text/plain"}
            ]) == {:ok, 1}
   end
 
   test "notify text/plain", %{port: port} do
-    assert JSONRPC2.Clients.HTTP.notify("http://localhost:#{port}/", "subtract", [2, 1], [
+    assert HTTP.notify("http://localhost:#{port}/", "subtract", [2, 1], [
              {"content-type", "text/plain"}
            ]) == :ok
   end
@@ -47,13 +51,12 @@ defmodule JSONRPC2.HTTPTest do
     batch = [{"subtract", [2, 1]}, {"subtract", [2, 1], 0}, {"subtract", [2, 2], 1}]
     expected = [ok: {0, {:ok, 1}}, ok: {1, {:ok, 0}}]
 
-    assert JSONRPC2.Clients.HTTP.batch("http://localhost:#{port}/", batch, [{"content-type", "text/plain"}]) ==
-             expected
+    assert HTTP.batch("http://localhost:#{port}/", batch, [{"content-type", "text/plain"}]) == expected
   end
 
   test "bad call", %{port: port} do
     assert {:error, {:http_request_failed, 404, _headers, {:ok, ""}}} =
-             JSONRPC2.Clients.HTTP.call(
+             HTTP.call(
                "http://localhost:#{port}/",
                "subtract",
                [2, 1],

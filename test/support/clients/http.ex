@@ -5,8 +5,10 @@ defmodule JSONRPC2.Clients.HTTP do
 
   @default_headers [{"content-type", "application/json"}]
 
-  @type batch_result :: {:ok, JSONRPC2.Response.id_and_response()} | {:error, any}
+  alias JSONRPC2.Response
+  alias JSONRPC2.Request
 
+  @type batch_result :: {:ok, Response.id_and_response()} | {:error, any}
   @doc """
   Make a call to `url` for JSON-RPC 2.0 `method` with `params`.
 
@@ -26,13 +28,13 @@ defmodule JSONRPC2.Clients.HTTP do
         hackney_opts \\ []
       ) do
     serializer = Jason
-    {:ok, payload} = JSONRPC2.Request.serialized_request({method, params, 0}, serializer)
+    {:ok, payload} = Request.serialized_request({method, params, 0}, serializer)
     response = :hackney.request(http_method, url, headers, payload, hackney_opts)
 
     with(
       {:ok, 200, _headers, body_ref} <- response,
       {:ok, body} <- :hackney.body(body_ref),
-      {:ok, {_, result}} <- JSONRPC2.Response.deserialize_response(body, serializer)
+      {:ok, {_, result}} <- Response.deserialize_response(body, serializer)
     ) do
       result
     else
@@ -58,7 +60,7 @@ defmodule JSONRPC2.Clients.HTTP do
   @spec notify(String.t(), JSONRPC2.method(), JSONRPC2.params(), any, atom, list) :: :ok | {:error, any}
   def notify(url, method, params, headers \\ @default_headers, http_method \\ :post, hackney_opts \\ []) do
     serializer = Jason
-    {:ok, payload} = JSONRPC2.Request.serialized_request({method, params}, serializer)
+    {:ok, payload} = Request.serialized_request({method, params}, serializer)
 
     case :hackney.request(http_method, url, headers, payload, hackney_opts) do
       {:ok, 200, _headers, _body_ref} -> :ok
@@ -75,21 +77,18 @@ defmodule JSONRPC2.Clients.HTTP do
 
   See [hackney](https://github.com/benoitc/hackney) for more information on the available options.
   """
-  @spec batch(String.t(), [JSONRPC2.Request.request()], any, atom, list) ::
-          [batch_result] | :ok | {:error, any}
+  @spec batch(String.t(), [Request.request()], any, atom, list) :: [batch_result] | :ok | {:error, any}
   def batch(url, requests, headers \\ @default_headers, http_method \\ :post, hackney_opts \\ []) do
-    serializer = Jason
-
     {:ok, payload} =
-      Enum.map(requests, &JSONRPC2.Request.request/1)
-      |> serializer.encode()
+      Enum.map(requests, &Request.request/1)
+      |> Jason.encode()
 
     response = :hackney.request(http_method, url, headers, payload, hackney_opts)
 
     with(
       {:ok, 200, _headers, body_ref} <- response,
       {:ok, body} <- :hackney.body(body_ref),
-      {:ok, deserialized_body} <- serializer.decode(body)
+      {:ok, deserialized_body} <- Jason.decode(body)
     ) do
       process_batch(deserialized_body)
     else
@@ -108,10 +107,10 @@ defmodule JSONRPC2.Clients.HTTP do
   end
 
   defp process_batch(responses) when is_list(responses) do
-    Enum.map(responses, &JSONRPC2.Response.id_and_response/1)
+    Enum.map(responses, &Response.id_and_response/1)
   end
 
   defp process_batch(response) do
-    JSONRPC2.Response.id_and_response(response)
+    Response.id_and_response(response)
   end
 end

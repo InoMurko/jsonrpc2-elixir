@@ -26,5 +26,5 @@
   "shackle": {:git, "https://github.com/lpgauth/shackle.git", "1cf730d86b918df5d390dcfce7f33f49de8e2084", [tag: "0.6.2"]},
   "ssl_verify_fun": {:hex, :ssl_verify_fun, "1.1.4", "f0eafff810d2041e93f915ef59899c923f4568f4585904d010387ed74988e77b", [:make, :mix, :rebar3], [], "hexpm"},
   "unicode_util_compat": {:hex, :unicode_util_compat, "0.4.1", "d869e4c68901dd9531385bb0c8c40444ebf624e60b6962d95952775cac5e90cd", [:rebar3], [], "hexpm"},
-  "websockex": {:hex, :websockex, "0.4.1", "d7b7191ec3d5dd136683b60114405a5a130a175faade773a07cb52dbd98f9442", [:mix], [], "hexpm"},
+  "websockex": {:git, "https://github.com/InoMurko/websockex.git", "2409d68a7caf8d34ceb39af9928efdff2eb59296", [branch: "master"]},
 }

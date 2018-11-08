@@ -24,7 +24,7 @@ defmodule JSONRPC2.Mixfile do
       start_permanent: Mix.env() == :prod,
       dialyzer: [
         flags: [:underspecs, :unknown, :unmatched_returns],
-        plt_add_apps: [:mix, :iex, :ex_unit, :shackle, :ranch, :plug, :hackney, :jason]
+        plt_add_apps: [:mix, :iex, :ex_unit, :shackle, :ranch, :plug, :hackney, :jason, :websockex, :cowboy]
       ]
     ]
   end
@@ -43,9 +43,10 @@ defmodule JSONRPC2.Mixfile do
       # testing and other stuff
       {:dialyxir, "~> 1.0.0-rc.4", only: [:dev, :test], runtime: false},
       {:hackney, "~> 1.6", only: [:test]},
-      {:websockex, "~> 0.4.0", only: [:test]},
+      {:websockex, "~> 0.4.1",
+       git: "https://github.com/InoMurko/websockex.git", branch: "master", only: [:test]},
       {:shackle, git: "https://github.com/lpgauth/shackle.git", tag: "0.6.2", only: [:test]},
-      {:ex_doc, "~> 0.19", only: :dev}
+      {:ex_doc, "~> 0.19", only: :dev, runtime: false}
     ]
   end
 
