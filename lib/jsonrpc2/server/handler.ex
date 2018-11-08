@@ -62,21 +62,26 @@ defmodule JSONRPC2.Server.Handler do
 
   @doc false
   def handle(module, serializer, json) when is_binary(json) do
-    case serializer.decode(json) do
-      {:ok, decoded_request} ->
-        parse(decoded_request) |> collate_for_dispatch(module)
+    data =
+      case serializer.decode(json) do
+        {:ok, decoded_request} ->
+          collate_for_dispatch(parse(decoded_request), module)
 
-      {:error, _error} ->
-        standard_error_response(:parse_error, nil)
+        {:error, _error} ->
+          standard_error_response(:parse_error, nil)
 
-      {:error, :invalid, _number} ->
-        standard_error_response(:parse_error, nil)
-    end
+        {:error, :invalid, _number} ->
+          standard_error_response(:parse_error, nil)
+      end
+
+    data
     |> encode_response(module, serializer, json)
   end
 
   def handle(module, serializer, json) do
-    parse(json)
+    data = parse(json)
+
+    data
     |> collate_for_dispatch(module)
     |> encode_response(module, serializer, json)
   end
@@ -125,39 +130,37 @@ defmodule JSONRPC2.Server.Handler do
   @throwable_errors [:method_not_found, :invalid_params, :internal_error, :server_error]
 
   defp dispatch(module, {method, params, id}) do
-    try do
-      result_response(module.handle_request(method, params), id)
-    rescue
-      e in FunctionClauseError ->
-        # if that error originates from the very module.handle_request call - handle, otherwise - reraise
-        case e do
-          %FunctionClauseError{function: :handle_request, module: ^module} ->
-            standard_error_response(:method_not_found, %{method: method, params: params}, id)
+    result_response(module.handle_request(method, params), id)
+  rescue
+    e in FunctionClauseError ->
+      # if that error originates from the very module.handle_request call - handle, otherwise - reraise
+      case e do
+        %FunctionClauseError{function: :handle_request, module: ^module} ->
+          standard_error_response(:method_not_found, %{method: method, params: params}, id)
 
-          other_e ->
-            stacktrace = System.stacktrace()
-            :ok = log_error(module, method, params, :error, other_e, stacktrace)
-            Kernel.reraise(other_e, stacktrace)
-        end
-    catch
-      :throw, error when error in @throwable_errors ->
-        standard_error_response(error, id)
+        other_e ->
+          stacktrace = System.stacktrace()
+          :ok = log_error(module, method, params, :error, other_e, stacktrace)
+          Kernel.reraise(other_e, stacktrace)
+      end
+  catch
+    :throw, error when error in @throwable_errors ->
+      standard_error_response(error, id)
 
-      :throw, {error, data} when error in @throwable_errors ->
-        standard_error_response(error, data, id)
+    :throw, {error, data} when error in @throwable_errors ->
+      standard_error_response(error, data, id)
 
-      :throw, {:jsonrpc2, code, message} when is_integer(code) and is_binary(message) ->
-        error_response(code, message, id)
+    :throw, {:jsonrpc2, code, message} when is_integer(code) and is_binary(message) ->
+      error_response(code, message, id)
 
-      :throw, {:jsonrpc2, code, message, data} when is_integer(code) and is_binary(message) ->
-        error_response(code, message, data, id)
+    :throw, {:jsonrpc2, code, message, data} when is_integer(code) and is_binary(message) ->
+      error_response(code, message, data, id)
 
-      kind, payload ->
-        stacktrace = System.stacktrace()
-        :ok = log_error(module, method, params, kind, payload, stacktrace)
+    kind, payload ->
+      stacktrace = System.stacktrace()
+      :ok = log_error(module, method, params, kind, payload, stacktrace)
 
-        standard_error_response(:internal_error, id)
-    end
+      standard_error_response(:internal_error, id)
   end
 
   defp dispatch(_module, _rpc) do
@@ -239,12 +242,12 @@ defmodule JSONRPC2.Server.Handler do
     }
   end
 
-  defp error_code_and_message(:parse_error), do: {-32700, "Parse error"}
-  defp error_code_and_message(:invalid_request), do: {-32600, "Invalid Request"}
-  defp error_code_and_message(:method_not_found), do: {-32601, "Method not found"}
-  defp error_code_and_message(:invalid_params), do: {-32602, "Invalid params"}
-  defp error_code_and_message(:internal_error), do: {-32603, "Internal error"}
-  defp error_code_and_message(:server_error), do: {-32000, "Server error"}
+  defp error_code_and_message(:parse_error), do: {-32_700, "Parse error"}
+  defp error_code_and_message(:invalid_request), do: {-32_600, "Invalid Request"}
+  defp error_code_and_message(:method_not_found), do: {-32_601, "Method not found"}
+  defp error_code_and_message(:invalid_params), do: {-32_602, "Invalid params"}
+  defp error_code_and_message(:internal_error), do: {-32_603, "Internal error"}
+  defp error_code_and_message(:server_error), do: {-32_000, "Server error"}
 
   defp encode_response(:noreply, _module, _serializer, _json) do
     :noreply

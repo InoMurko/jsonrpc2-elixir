@@ -6,8 +6,8 @@ defmodule JSONRPC2.Clients.TCP.Protocol do
   end
 
   require Logger
-  alias JSONRPC2.Response
   alias JSONRPC2.Request
+  alias JSONRPC2.Response
 
   def init(_) do
     {:ok, %{request_counter: 0}}

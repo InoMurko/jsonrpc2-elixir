@@ -41,8 +41,11 @@ defmodule JSONRPC2.Clients.WebSocketStack do
 
       {:websocket_response, {:ok, results}} ->
         # get the request id from the response and update it
+
+        data = Enum.map(results, fn {_, {index, _}} -> external_request_id + index end)
+
         new_external_request_id =
-          Enum.map(results, fn {_, {index, _}} -> external_request_id + index end)
+          data
           |> tl
           |> hd
 

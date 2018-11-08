@@ -5,8 +5,8 @@ defmodule JSONRPC2.Clients.WebSocket do
 
   use WebSockex
   require Logger
-  alias JSONRPC2.Response
   alias JSONRPC2.Request
+  alias JSONRPC2.Response
 
   @spec call(pid(), JSONRPC2.method(), JSONRPC2.params(), integer()) ::
           :ok
@@ -63,9 +63,7 @@ defmodule JSONRPC2.Clients.WebSocket do
   end
 
   defp handle_request(:call, methods) when is_list(methods) do
-    {:ok, data} =
-      Enum.map(methods, &Request.request/1)
-      |> Jason.encode()
+    {:ok, data} = Jason.encode(Enum.map(methods, &Request.request/1))
 
     {:ok, data}
   end

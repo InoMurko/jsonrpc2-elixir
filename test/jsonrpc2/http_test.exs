@@ -6,7 +6,7 @@ defmodule JSONRPC2.HTTPTest do
   alias JSONRPC2.SpecHandlerTest.HTTP, as: SpecHandlerTestHTTP
 
   setup do
-    port = :rand.uniform(65535 - 1025) + 1025
+    port = :rand.uniform(65_535 - 1025) + 1025
     {:ok, pid} = WebSocketHTTP.http(SpecHandlerTest, port: port)
 
     on_exit(fn ->

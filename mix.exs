@@ -41,10 +41,10 @@ defmodule JSONRPC2.Mixfile do
       {:plug, "~> 1.7"},
       {:plug_cowboy, "~> 2.0"},
       # testing and other stuff
+      {:credo, "~> 1.0.0-rc1", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.0.0-rc.4", only: [:dev, :test], runtime: false},
       {:hackney, "~> 1.6", only: [:test]},
-      {:websockex, "~> 0.4.1",
-       git: "https://github.com/InoMurko/websockex.git", branch: "master", only: [:test]},
+      {:websockex, git: "https://github.com/InoMurko/websockex.git", branch: "master", only: [:test]},
       {:shackle, git: "https://github.com/lpgauth/shackle.git", tag: "0.6.2", only: [:test]},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false}
     ]

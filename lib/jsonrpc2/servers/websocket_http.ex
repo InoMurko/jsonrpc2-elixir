@@ -86,11 +86,13 @@ defmodule JSONRPC2.Servers.WebSocketHTTP do
   end
 
   defp ref(scheme, handler) do
-    case scheme do
-      :http -> [handler, HTTP]
-      :https -> [handler, HTTPS]
-    end
-    |> Module.concat()
+    ref =
+      case scheme do
+        :http -> [handler, HTTP]
+        :https -> [handler, HTTPS]
+      end
+
+    Module.concat(ref)
   end
 
   @doc """

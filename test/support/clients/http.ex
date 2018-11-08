@@ -4,9 +4,8 @@ defmodule JSONRPC2.Clients.HTTP do
   """
 
   @default_headers [{"content-type", "application/json"}]
-
-  alias JSONRPC2.Response
   alias JSONRPC2.Request
+  alias JSONRPC2.Response
 
   @type batch_result :: {:ok, Response.id_and_response()} | {:error, any}
   @doc """
@@ -79,9 +78,7 @@ defmodule JSONRPC2.Clients.HTTP do
   """
   @spec batch(String.t(), [Request.request()], any, atom, list) :: [batch_result] | :ok | {:error, any}
   def batch(url, requests, headers \\ @default_headers, http_method \\ :post, hackney_opts \\ []) do
-    {:ok, payload} =
-      Enum.map(requests, &Request.request/1)
-      |> Jason.encode()
+    {:ok, payload} = Jason.encode(Enum.map(requests, &Request.request/1))
 
     response = :hackney.request(http_method, url, headers, payload, hackney_opts)
 

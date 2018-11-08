@@ -5,7 +5,7 @@ defmodule JSONRPC2.TCPTest do
   alias JSONRPC2.SpecHandlerTest
 
   setup do
-    port = :rand.uniform(65535 - 1025) + 1025
+    port = :rand.uniform(65_535 - 1025) + 1025
 
     {:ok, pid} = TCPServer.start_listener(SpecHandlerTest, port, name: __MODULE__)
 

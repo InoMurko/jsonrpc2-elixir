@@ -64,7 +64,7 @@ defmodule JSONRPC2.Servers.HTTP.Plug do
   end
 
   @doc false
-  def handle_jsonrpc2(%{method: "POST", body_params: body_params} = conn, opts) do
+  def handle_jsonrpc2(conn = %{method: "POST", body_params: body_params}, opts) do
     handle_jsonrpc2(conn, body_params, opts)
   end
 

@@ -2,9 +2,9 @@ defmodule JSONRPC2.HandlerTest do
   use ExUnit.Case, async: true
 
   import ExUnit.CaptureLog
-  alias JSONRPC2.SpecHandlerTest
-  alias JSONRPC2.ErrorHandlerTest
   alias JSONRPC2.BuggyHandlerTest
+  alias JSONRPC2.ErrorHandlerTest
+  alias JSONRPC2.SpecHandlerTest
 
   describe "examples from JSON-RPC 2.0 spec at http://www.jsonrpc.org/specification#examples" do
     test "rpc call with positional parameters" do

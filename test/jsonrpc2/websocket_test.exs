@@ -1,12 +1,13 @@
 defmodule JSONRPC2.WebSocketTest do
   use ExUnit.Case, async: true
   alias JSONRPC2.Clients.WebSocketStack
-  alias JSONRPC2.Servers.WebSocketHTTP
   alias JSONRPC2.Servers.HTTP.Plug.HTTP
+  alias JSONRPC2.Servers.WebSocketHTTP
+
   alias JSONRPC2.SpecHandlerTest
 
   setup do
-    port = :rand.uniform(65535 - 1025) + 1025
+    port = :rand.uniform(65_535 - 1025) + 1025
     {:ok, pid} = WebSocketHTTP.websocket(SpecHandlerTest, port: port)
     {:ok, client_pid} = GenServer.start_link(WebSocketStack, %{external_request_id: 0, port: port})
 
